@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishi.ai - कृषि सहायक</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .language-selector {
+            margin-top: 12px;
+        }
+
+        .language-selector select {
+            padding: 10px 15px;
+            font-size: 15px;
+            border: none;
+            border-radius: 20px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            min-width: 140px;
+            font-weight: 500;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #4CAF50;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .suggestions-container {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .suggestions-title {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .suggestion-btn {
+            padding: 12px 8px;
+            background: #E8F5E9;
+            border: 2px solid #C8E6C9;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            color: #2E7D32;
+            font-weight: 500;
+        }
+
+        .suggestion-btn:hover {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .input-area {
+            padding: 15px;
+            background: white;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .input-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .text-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .voice-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #FF5722 0%, #E64A19 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255,87,34,0.4);
+        }
+
+        .voice-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-btn.listening {
+            background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(244,67,54,0.4); }
+            50% { transform: scale(1.15); box-shadow: 0 6px 20px rgba(244,67,54,0.6); }
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: #45a049;
+            transform: scale(1.1);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .status-indicator.show {
+            display: block;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .suggestions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .voice-btn {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-indicator" id="statusIndicator"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌾 Krishi.ai 🌾</h1>
+            <p>कृषि सहायक - खेती की जानकारी</p>
+            <div class="language-selector">
+                <select id="languageSelect">
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="kok">कोंकणी (Konkani)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                    <option value="ta">தமிழ் (Tamil)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="ml">മലയാളം (Malayalam)</option>
+                    <option value="bho">भोजपुरी (Bhojpuri)</option>
+                    <option value="gu">ગુજરાતી (Gujarati)</option>
+                    <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                    <option value="ha">हरियाणवी (Haryanvi)</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot">
+                <div class="message-content">
+                    🙏 नमस्ते! मैं आपका कृषि सहायक हूं। खेती के बारे में कुछ भी पूछें।<br><br>
+                    Hello! I'm your farming assistant. Ask me anything about agriculture!
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Suggestions -->
+        <div class="suggestions-container">
+            <div class="suggestions-title">✨ Quick Help:</div>
+            <div class="suggestions-grid">
+                <button class="suggestion-btn" onclick="sendQuickQuery('weather')">
+                    🌤️ Weather
+                </button>
+                <button class="suggestion-btn" onclick="sendQuickQuery('fertilizer')">
+                    🌱 Fertilizer
+                </button>
+                <button class="suggestion-btn" onclick="sendQuickQuery('pest')">
+                    🐛 Pest Control
+                </button>
+                <button class="suggestion-btn" onclick="sendQuickQuery('irrigation')">
+                    💧 Irrigation
+                </button>
+                <button class="suggestion-btn" onclick="sendQuickQuery('crop_selection')">
+                    🌾 Crop Tips
+                </button>
+                <button class="suggestion-btn" onclick="sendQuickQuery('market')">
+                    💰 Market Info
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-controls">
+                <input type="text" class="text-input" id="textInput" 
+                       placeholder="अपना सवाल लिखें या बोलें...">
+                <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceInput()">
+                    🎤
+                </button>
+                <button class="send-btn" onclick="sendMessage()">
+                    ➤
+                </button>
+            </div>
+        </div>
+    </div>
+
+   
+<style>
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+</style>
+
+
+    <script>
+        let isListening = false;
+        let recognition;
+        let conversationHistory = [];
+        const chatContainer = document.getElementById('chatContainer');
+        const textInput = document.getElementById('textInput');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const languageSelect = document.getElementById('languageSelect');
+        const statusIndicator = document.getElementById('statusIndicator');
+
+        // Language code mapping for Web Speech API
+        const speechLangMap = {
+            'hi': 'hi-IN',
+            'mr': 'mr-IN',
+            'kok': 'kok-IN',
+            'kn': 'kn-IN',
+            'ta': 'ta-IN',
+            'te': 'te-IN',
+            'ml': 'ml-IN',
+            'bho': 'bho-IN',
+            'gu': 'gu-IN',
+            'pa': 'pa-IN',
+            'ha': 'hi-IN', // Haryanvi uses Hindi
+            'en': 'en-IN'
+        };
+
+        // Initialize Speech Recognition
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onstart = function() {
+                    isListening = true;
+                    voiceBtn.classList.add('listening');
+                    voiceBtn.innerHTML = '🔴';
+                    showStatus('🎤 Listening...');
+                };
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    textInput.value = transcript;
+                    showStatus('✅ Got it!');
+                    setTimeout(() => sendMessage(), 500);
+                };
+
+                recognition.onend = function() {
+                    isListening = false;
+                    voiceBtn.classList.remove('listening');
+                    voiceBtn.innerHTML = '🎤';
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    isListening = false;
+                    voiceBtn.classList.remove('listening');
+                    voiceBtn.innerHTML = '🎤';
+                    showStatus('❌ Error: ' + event.error);
+                };
+            } else {
+                showStatus('⚠️ Voice input not supported in this browser');
+            }
+        }
+
+        // Show status indicator
+        function showStatus(message) {
+            statusIndicator.textContent = message;
+            statusIndicator.classList.add('show');
+            setTimeout(() => {
+                statusIndicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // Toggle voice input
+        function toggleVoiceInput() {
+            if (!recognition) {
+                alert('Voice input is not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            const language = languageSelect.value;
+            recognition.lang = speechLangMap[language] || 'hi-IN';
+
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const message = textInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            textInput.value = '';
+
+            // Show loading
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.id = 'loading';
+            loadingDiv.innerHTML = '🤔 Thinking';
+            chatContainer.appendChild(loadingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                // Send to backend
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        language: languageSelect.value,
+                        history: conversationHistory
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remove loading
+                document.getElementById('loading')?.remove();
+
+                if (data.success) {
+                    // Add bot response
+                    addMessage(data.response, 'bot');
+                    
+                    // Update conversation history
+                    conversationHistory.push({role: 'user', content: message});
+                    conversationHistory.push({role: 'assistant', content: data.response});
+
+                    // Keep only last 10 messages
+                    if (conversationHistory.length > 10) {
+                        conversationHistory = conversationHistory.slice(-10);
+                    }
+
+                    // Play audio response
+                    playTextToSpeech(data.response);
+                } else {
+                    addMessage(data.response || 'Sorry, please try again.', 'bot');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading')?.remove();
+                addMessage('कृपया दोबारा कोशिश करें। / Please try again.', 'bot');
+            }
+        }
+
+        // Send quick query
+        async function sendQuickQuery(type) {
+            const queries = {
+                'weather': 'What is the weather forecast for farming today?',
+                'fertilizer': 'What fertilizer should I use for my crops?',
+                'pest': 'How can I control pests in my field?',
+                'irrigation': 'When should I irrigate my crops?',
+                'crop_selection': 'Which crop should I plant this season?',
+                'market': 'What are the current market prices?'
+            };
+
+            // Translate suggestion if not English
+            let question = queries[type];
+            const language = languageSelect.value;
+            
+            if (language !== 'en') {
+                try {
+                    const response = await fetch('/translate', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            text: question,
+                            language: language
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        question = data.translated;
+                    }
+                } catch (e) {
+                    console.log('Translation failed, using English');
+                }
+            }
+
+            textInput.value = question;
+            sendMessage();
+        }
+
+        // Add message to chat
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = text;
+            
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Play text-to-speech using Browser API
+        function playTextToSpeech(text) {
+            try {
+                if ('speechSynthesis' in window) {
+                    // Cancel any ongoing speech
+                    window.speechSynthesis.cancel();
+                    
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    const language = languageSelect.value;
+                    utterance.lang = speechLangMap[language] || 'hi-IN';
+                    utterance.rate = 0.9;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+                    
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    console.log('Text-to-speech not supported');
+                }
+            } catch (error) {
+                console.error('TTS Error:', error);
+            }
+        }
+
+        // Allow Enter key to send message
+        textInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialize on page load
+        window.onload = function() {
+            initSpeechRecognition();
+        };
+    </script>
+</body>
+</html>
