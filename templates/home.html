@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishi.ai - कृषि सहायक</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;900&family=Noto+Sans+Devanagari:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
+            overflow-x: hidden;
+            background: #f5f7fa;
+            scroll-behavior: smooth;
+        }
+
+        /* Hero Section with Parallax Background */
+        /* Optimized Hero Section - No Lag */
+.hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #4CAF50 0%, #66bb6a 50%, #81c784 100%);
+}
+
+/* Simple static background image - no blur, no animation */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(135deg, rgba(76, 175, 80, 0.92) 0%, rgba(139, 195, 74, 0.88) 100%),
+        url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=1920') center/cover;
+    background-attachment: fixed;
+    z-index: 0;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, transparent 30%, rgba(76, 175, 80, 0.15) 100%);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    animation: fadeInUp 1s ease-out;
+}
+
+/* Simplified fade in */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.logo {
+    font-size: clamp(4rem, 12vw, 8rem);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 
+        0 0 20px rgba(255,255,255,0.5),
+        3px 3px 10px rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+    animation: fadeIn 1.5s ease-out;
+}
+
+/* Simple fade in - no glow animation */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: scale(0.95);
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1);
+    }
+}
+
+.tagline {
+    font-size: clamp(1.1rem, 3vw, 1.8rem);
+    color: #ffffff;
+    max-width: 800px;
+    margin: 0 auto 30px;
+    line-height: 1.8;
+    font-weight: 400;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+    animation: fadeIn 1.8s ease-out;
+    padding: 0 20px;
+}
+
+
+        @keyframes smoothFadeInUpDelayed {
+            0% {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 300;
+            z-index: 2;
+            animation: smoothBounce 2.5s ease-in-out infinite;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+        }
+
+        @keyframes smoothBounce {
+            0%, 100% { 
+                transform: translateX(-50%) translateY(0); 
+            }
+            50% { 
+                transform: translateX(-50%) translateY(-12px); 
+            }
+        }
+
+        .scroll-indicator::after {
+            content: '↓';
+            display: block;
+            font-size: 30px;
+            margin-top: 5px;
+        }
+
+        /* How to Use Section */
+        .how-to-use {
+            padding: 100px 20px;
+            background: linear-gradient(180deg, #f5f7fa 0%, #e8f5e9 100%);
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            color: #2e7d32;
+            margin-bottom: 20px;
+            animation: smoothSlideInDown 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            margin: 20px auto 0;
+            border-radius: 2px;
+        }
+
+        @keyframes smoothSlideInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-35px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: #558b2f;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .lang-button {
+    padding: 25px 20px;
+    background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    font-size: 1.15rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;  /* Simplified transition */
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    position: relative;
+}
+
+        
+
+        .lang-button:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 
+                0 12px 35px rgba(76, 175, 80, 0.5),
+                inset 0 -3px 10px rgba(0,0,0,0.2);
+        }
+
+        .lang-button.active {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 152, 0, 0.6);
+        }
+
+        .instructions-box {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 50px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.15),
+                inset 0 1px 0 rgba(255,255,255,0.6);
+            min-height: 300px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(76, 175, 80, 0.1);
+        }
+
+        .instruction-title {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            color: #2e7d32;
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .instruction-text {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.9;
+            color: #555;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .instruction-steps {
+            list-style: none;
+            padding: 0;
+            margin-top: 25px;
+        }
+
+        .instruction-steps li {
+            padding: 20px 25px;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+            border-left: 5px solid #4caf50;
+            border-radius: 12px;
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .instruction-steps li:hover {
+            background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+            border-left-color: #2e7d32;
+            transform: translateX(12px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 100px 20px;
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* .cta-section::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            top: -250px;
+            right: -250px;
+            animation: smoothFloat 8s ease-in-out infinite;
+        }
+
+        .cta-section::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+            bottom: -200px;
+            left: -200px;
+            animation: smoothFloat 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes smoothFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(90deg); }
+        } */
+
+        .cta-button {
+            position: relative;
+            z-index: 1;
+            padding: 25px 70px;
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 700;
+            background: white;
+            color: #2e7d32;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 
+                0 15px 40px rgba(0,0,0,0.3),
+                inset 0 -5px 15px rgba(0,0,0,0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: smoothPulseCTA 3s ease-in-out infinite;
+        }
+
+        @keyframes smoothPulseCTA {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            }
+            50% { 
+                transform: scale(1.03);
+                box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+            }
+        }
+
+        .cta-button:hover {
+            transform: scale(1.12) translateY(-4px);
+            box-shadow: 
+                0 25px 60px rgba(0,0,0,0.5),
+                0 0 30px rgba(255,255,255,0.5);
+            background: linear-gradient(135deg, #fff 0%, #f1f8e9 100%);
+        }
+
+        .cta-button:active {
+            transform: scale(1.05);
+        }
+
+        /* Enhanced Footer with Social Icons */
+        .footer {
+            padding: 50px 20px 30px;
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            font-size: 22px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-icon:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-icon.linkedin:hover {
+            background: #0077b5;
+            border-color: #0077b5;
+        }
+
+        .social-icon.github:hover {
+            background: #333;
+            border-color: #333;
+        }
+
+        .social-icon.gmail:hover {
+            background: #ea4335;
+            border-color: #ea4335;
+        }
+
+        .social-icon.portfolio:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .footer-text {
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            font-size: 1.05rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 30px 15px;
+            }
+
+            .logo {
+                margin-bottom: 15px;
+            }
+
+            .tagline {
+                font-size: 1rem;
+                margin-bottom: 20px;
+            }
+
+            .how-to-use {
+                padding: 60px 15px;
+            }
+
+            .language-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .lang-button {
+                padding: 20px 15px;
+                font-size: 1rem;
+            }
+
+            .instructions-box {
+                padding: 30px 20px;
+            }
+
+            .cta-section {
+                padding: 60px 15px;
+            }
+
+            .cta-button {
+                padding: 20px 50px;
+            }
+
+            .social-icons {
+                gap: 20px;
+            }
+
+            .social-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .language-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .scroll-indicator {
+                font-size: 14px;
+                bottom: 30px;
+            }
+
+            .social-icons {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="logo">K R I S H I .ai</div>
+            <p class="tagline">Dedicated to every Indian farmer</p>
+            <p class="tagline">the true hero of our land.</p>
+            
+        </div>
+        <div class="scroll-indicator">
+            Scroll to learn more
+        </div>
+    </section>
+
+    <!-- How to Use Section -->
+    <section class="how-to-use">
+        <h2 class="section-title">How to Use Krishi.ai</h2>
+        <p class="section-subtitle">Select your language to see instructions in your mother tongue</p>
+
+        <div class="language-grid">
+            <button class="lang-button" onclick="showInstructions('hi')">हिंदी</button>
+            <button class="lang-button" onclick="showInstructions('mr')">मराठी</button>
+            <button class="lang-button" onclick="showInstructions('kok')">कोंकणी</button>
+            <button class="lang-button" onclick="showInstructions('kn')">ಕನ್ನಡ</button>
+            <button class="lang-button" onclick="showInstructions('ta')">தமிழ்</button>
+            <button class="lang-button" onclick="showInstructions('te')">తెలుగు</button>
+            <button class="lang-button" onclick="showInstructions('ml')">മലയാളം</button>
+            <button class="lang-button" onclick="showInstructions('bho')">भोजपुरी</button>
+            <button class="lang-button" onclick="showInstructions('gu')">ગુજરાતી</button>
+            <button class="lang-button" onclick="showInstructions('pa')">ਪੰਜਾਬੀ</button>
+            <button class="lang-button" onclick="showInstructions('bn')">বাংলা</button>
+            <button class="lang-button active" onclick="showInstructions('en')">English</button>
+        </div>
+
+        <div class="instructions-box" id="instructionsBox">
+            <h3 class="instruction-title">How to Use</h3>
+            <p class="instruction-text">Welcome to Krishi.ai - your intelligent farming assistant!</p>
+            <ul class="instruction-steps">
+                <li>🎤 Click the "Start Chatting" button below</li>
+                <li>🗣️ Tap the microphone icon and speak your farming question in your language</li>
+                <li>⌨️ Or type your question using the text input</li>
+                <li>💡 Use quick suggestion buttons for common queries</li>
+                <li>🔊 Listen to AI responses in audio or read them as text</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <button class="cta-button" onclick="startChatting()">Start Chatting now!</button>
+    </section>
+
+    <!-- Enhanced Footer with Social Icons -->
+    <footer class="footer">
+        <div class="social-icons">
+            <a href="https://www.linkedin.com/in/patil04" target="_blank" class="social-icon linkedin" title="LinkedIn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+            </a>
+            <a href="mailto:pranavp4.work@gmail.com" class="social-icon gmail" title="Email">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                </svg>
+            </a>
+            <a href="https://vrbeirer.github.io/coming_soon/" target="_blank" class="social-icon portfolio" title="Portfolio">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 16.057v-3.057h2.994c-.059 1.143-.212 2.24-.456 3.279-.823-.12-1.674-.188-2.538-.222zm1.957 2.162c-.499 1.33-1.159 2.497-1.957 3.456v-3.62c.666.028 1.319.081 1.957.164zm-1.957-7.219v-3.015c.868-.034 1.721-.103 2.548-.224.238 1.027.389 2.111.446 3.239h-2.994zm0-5.014v-3.661c.806.969 1.471 2.15 1.971 3.496-.642.084-1.3.137-1.971.165zm2.703-3.267c1.237.496 2.354 1.228 3.29 2.146-.642.234-1.311.442-2.019.607-.344-.992-.775-1.91-1.271-2.753zm-7.241 13.56c-.244-1.039-.398-2.136-.456-3.279h2.994v3.057c-.865.034-1.714.102-2.538.222zm2.538 1.776v3.62c-.798-.959-1.458-2.126-1.957-3.456.638-.083 1.291-.136 1.957-.164zm-2.994-7.055c.057-1.128.207-2.212.446-3.239.827.121 1.68.19 2.548.224v3.015h-2.994zm1.024-5.179c.5-1.346 1.165-2.527 1.97-3.496v3.661c-.671-.028-1.329-.081-1.97-.165zm-2.005-.35c-.708-.165-1.377-.373-2.018-.607.937-.918 2.053-1.65 3.29-2.146-.496.844-.927 1.762-1.272 2.753zm-.549 1.918c-.264 1.151-.434 2.36-.492 3.611h-3.933c.165-1.658.739-3.197 1.617-4.518.88.361 1.816.67 2.808.907zm.009 9.262c-.988.236-1.92.542-2.797.9-.89-1.328-1.471-2.879-1.637-4.551h3.934c.058 1.265.231 2.488.5 3.651zm.553 1.917c.342.976.768 1.881 1.257 2.712-1.223-.49-2.326-1.211-3.256-2.115.636-.229 1.299-.435 1.999-.597zm9.924 0c.7.163 1.362.367 1.999.597-.931.903-2.034 1.625-3.257 2.116.489-.832.915-1.737 1.258-2.713zm.553-1.917c.27-1.163.442-2.386.501-3.651h3.934c-.167 1.672-.748 3.223-1.638 4.551-.877-.358-1.81-.664-2.797-.9zm.501-5.651c-.058-1.251-.229-2.46-.492-3.611.992-.237 1.929-.546 2.809-.907.877 1.321 1.451 2.86 1.616 4.518h-3.933z"/>
+                </svg>
+            </a>
+            <a href="https://github.com/vrbeirer" target="_blank" class="social-icon github" title="GitHub">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+            </a>
+        </div>
+        <p class="footer-text">© 2025 krishi.ai | Designed & Developed by Pranav</p>
+    </footer>
+
+    <script>
+        // [Keep all your existing JavaScript code - instructions object and functions]
+        const instructions = {
+            'en': {
+                title: 'How to Use',
+                text: 'Welcome to Krishi.ai - your intelligent farming assistant!',
+                steps: [
+                    '🎤 Click the "Start Chatting" button below',
+                    '🗣️ Tap the microphone icon and speak your farming question in your language',
+                    '⌨️ Or type your question using the text input',
+                    '💡 Use quick suggestion buttons for common queries',
+                    '🔊 Listen to AI responses in audio or read them as text'
+                ]
+            },
+            'hi': {
+                title: 'उपयोग कैसे करें',
+                text: 'Krishi.ai में आपका स्वागत है - आपका बुद्धिमान कृषि सहायक!',
+                steps: [
+                    '🎤 नीचे "चैट शुरू करें" बटन पर क्लिक करें',
+                    '🗣️ माइक्रोफोन आइकन टैप करें और अपनी भाषा में खेती का सवाल बोलें',
+                    '⌨️ या टेक्स्ट इनपुट का उपयोग करके अपना सवाल टाइप करें',
+                    '💡 सामान्य प्रश्नों के लिए त्वरित सुझाव बटन का उपयोग करें',
+                    '🔊 AI प्रतिक्रियाओं को ऑडियो में सुनें या टेक्स्ट के रूप में पढ़ें'
+                ]
+            },
+            'mr': {
+                title: 'वापर कसा करावा',
+                text: 'Krishi.ai मध्ये आपले स्वागत आहे - तुमचा बुद्धिमान शेती सहाय्यक!',
+                steps: [
+                    '🎤 खाली "चॅट सुरू करा" बटणावर क्लिक करा',
+                    '🗣️ मायक्रोफोन आयकॉनवर टॅप करा आणि तुमच्या भाषेत शेतीचा प्रश्न विचारा',
+                    '⌨️ किंवा टेक्स्ट इनपुट वापरून तुमचा प्रश्न टाइप करा',
+                    '💡 सामान्य प्रश्नांसाठी द्रुत सूचना बटणे वापरा',
+                    '🔊 AI प्रतिसादांना ऑडिओमध्ये ऐका किंवा मजकूर म्हणून वाचा'
+                ]
+            },
+            'kn': {
+                title: 'ಬಳಸುವುದು ಹೇಗೆ',
+                text: 'Krishi.ai ಗೆ ಸುಸ್ವಾಗತ - ನಿಮ್ಮ ಬುದ್ಧಿವಂತ ಕೃಷಿ ಸಹಾಯಕ!',
+                steps: [
+                    '🎤 ಕೆಳಗಿನ "ಚಾಟ್ ಪ್ರಾರಂಭಿಸಿ" ಬಟನ್ ಕ್ಲಿಕ್ ಮಾಡಿ',
+                    '🗣️ ಮೈಕ್ರೋಫೋನ್ ಐಕಾನ್ ಟ್ಯಾಪ್ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಕೃಷಿ ಪ್ರಶ್ನೆ ಕೇಳಿ',
+                    '⌨️ ಅಥವಾ ಪಠ್ಯ ಇನ್‌ಪುಟ್ ಬಳಸಿ ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ',
+                    '💡 ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳಿಗೆ ತ್ವರಿತ ಸಲಹೆ ಬಟನ್‌ಗಳನ್ನು ಬಳಸಿ',
+                    '🔊 AI ಪ್ರತಿಕ್ರಿಯೆಗಳನ್ನು ಆಡಿಯೋದಲ್ಲಿ ಕೇಳಿ ಅಥವಾ ಪಠ್ಯವಾಗಿ ಓದಿ'
+                ]
+            },
+            'ta': {
+                title: 'எப்படி பயன்படுத்துவது',
+                text: 'Krishi.ai க்கு வரவேற்கிறோம் - உங்கள் அறிவார்ந்த விவசாய உதவியாளர்!',
+                steps: [
+                    '🎤 கீழே உள்ள "அரட்டை தொடங்கு" பொத்தானை கிளிக் செய்யவும்',
+                    '🗣️ மைக்ரோஃபோன் ஐகானைத் தட்டி உங்கள் மொழியில் விவசாயக் கேள்வியைக் கேளுங்கள்',
+                    '⌨️ அல்லது உரை உள்ளீட்டைப் பயன்படுத்தி உங்கள் கேள்வியை தட்டச்சு செய்யவும்',
+                    '💡 பொதுவான கேள்விகளுக்கு விரைவு பரிந்துரை பொத்தான்களைப் பயன்படுத்தவும்',
+                    '🔊 AI பதில்களை ஆடியோவில் கேட்கவும் அல்லது உரையாக படிக்கவும்'
+                ]
+            },
+            'te': {
+                title: 'ఎలా ఉపయోగించాలి',
+                text: 'Krishi.ai కు స్వాగతం - మీ తెలివైన వ్యవసాయ సహాయకుడు!',
+                steps: [
+                    '🎤 క్రింద "చాట్ ప్రారంభించు" బటన్‌ను క్లిక్ చేయండి',
+                    '🗣️ మైక్రోఫోన్ చిహ్నాన్ని నొక్కి మీ భాషలో వ్యవసాయ ప్రశ్న అడగండి',
+                    '⌨️ లేదా టెక్స్ట్ ఇన్‌పుట్ ఉపయోగించి మీ ప్రశ్నను టైప్ చేయండి',
+                    '💡 సాధారణ ప్రశ్నలకు త్వరిత సూచన బటన్‌లను ఉపయోగించండి',
+                    '🔊 AI ప్రతిస్పందనలను ఆడియోలో వినండి లేదా టెక్స్ట్‌గా చదవండి'
+                ]
+            },
+            'ml': {
+                title: 'എങ്ങനെ ഉപയോഗിക്കാം',
+                text: 'Krishi.ai ലേക്ക് സ്വാഗതം - നിങ്ങളുടെ ബുദ്ധിമാനായ കൃഷി സഹായി!',
+                steps: [
+                    '🎤 താഴെയുള്ള "ചാറ്റ് ആരംഭിക്കുക" ബട്ടണിൽ ക്ലിക്ക് ചെയ്യുക',
+                    '🗣️ മൈക്രോഫോൺ ഐക്കൺ ടാപ്പ് ചെയ്ത് നിങ്ങളുടെ ഭാഷയിൽ കൃഷി ചോദ്യം ചോദിക്കുക',
+                    '⌨️ അല്ലെങ്കിൽ ടെക്സ്റ്റ് ഇൻപുട്ട് ഉപയോഗിച്ച് നിങ്ങളുടെ ചോദ്യം ടൈപ്പ് ചെയ്യുക',
+                    '💡 സാധാരണ ചോദ്യങ്ങൾക്കായി ദ്രുത നിർദ്ദേശ ബട്ടണുകൾ ഉപയോഗിക്കുക',
+                    '🔊 AI പ്രതികരണങ്ങൾ ഓഡിയോയിൽ കേൾക്കുക അല്ലെങ്കിൽ ടെക്സ്റ്റായി വായിക്കുക'
+                ]
+            },
+            'gu': {
+                title: 'ઉપયોગ કેવી રીતે કરવો',
+                text: 'Krishi.ai માં આપનું સ્વાગત છે - તમારા બુદ્ધિશાળી ખેતી સહાયક!',
+                steps: [
+                    '🎤 નીચે "ચેટ શરૂ કરો" બટન પર ક્લિક કરો',
+                    '🗣️ માઇક્રોફોન આઇકોન ટેપ કરો અને તમારી ભાષામાં ખેતીનો પ્રશ્ન પૂછો',
+                    '⌨️ અથવા ટેક્સ્ટ ઇનપુટનો ઉપયોગ કરીને તમારો પ્રશ્ન ટાઇપ કરો',
+                    '💡 સામાન્ય પ્રશ્નો માટે ઝડપી સૂચન બટનોનો ઉપયોગ કરો',
+                    '🔊 AI પ્રતિસાદોને ઑડિયોમાં સાંભળો અથવા ટેક્સ્ટ તરીકે વાંચો'
+                ]
+            },
+            'pa': {
+                title: 'ਵਰਤੋਂ ਕਿਵੇਂ ਕਰੀਏ',
+                text: 'Krishi.ai ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ - ਤੁਹਾਡਾ ਬੁੱਧੀਮਾਨ ਖੇਤੀ ਸਹਾਇਕ!',
+                steps: [
+                    '🎤 ਹੇਠਾਂ "ਚੈਟ ਸ਼ੁਰੂ ਕਰੋ" ਬਟਨ \'ਤੇ ਕਲਿੱਕ ਕਰੋ',
+                    '🗣️ ਮਾਈਕ੍ਰੋਫੋਨ ਆਈਕਾਨ ਟੈਪ ਕਰੋ ਅਤੇ ਆਪਣੀ ਭਾਸ਼ਾ ਵਿੱਚ ਖੇਤੀ ਦਾ ਸਵਾਲ ਪੁੱਛੋ',
+                    '⌨️ ਜਾਂ ਟੈਕਸਟ ਇਨਪੁਟ ਦੀ ਵਰਤੋਂ ਕਰਕੇ ਆਪਣਾ ਸਵਾਲ ਟਾਈਪ ਕਰੋ',
+                    '💡 ਆਮ ਸਵਾਲਾਂ ਲਈ ਤੇਜ਼ ਸੁਝਾਅ ਬਟਨਾਂ ਦੀ ਵਰਤੋਂ ਕਰੋ',
+                    '🔊 AI ਜਵਾਬਾਂ ਨੂੰ ਆਡੀਓ ਵਿੱਚ ਸੁਣੋ ਜਾਂ ਟੈਕਸਟ ਵਜੋਂ ਪੜ੍ਹੋ'
+                ]
+            },
+            'bho': {
+                title: 'इस्तेमाल कइसे करीं',
+                text: 'Krishi.ai में रउआ के स्वागत बा - रउआ के बुद्धिमान खेती सहायक!',
+                steps: [
+                    '🎤 नीचे "चैट शुरू करीं" बटन पर क्लिक करीं',
+                    '🗣️ माइक्रोफोन आइकन टैप करीं आ अपना भाषा में खेती के सवाल पूछीं',
+                    '⌨️ भा टेक्स्ट इनपुट के इस्तेमाल करके अपना सवाल टाइप करीं',
+                    '💡 आम सवाल खातिर त्वरित सुझाव बटन के इस्तेमाल करीं',
+                    '🔊 AI जवाब के ऑडियो में सुनीं भा टेक्स्ट के रूप में पढ़ीं'
+                ]
+            },
+            'kok': {
+                title: 'वापर कसो करचो',
+                text: 'Krishi.ai मदीं तुमचें स्वागत - तुमचो बुद्धिमान शेत सहाय्यक!',
+                steps: [
+                    '🎤 सकयल "चॅट सुरू करा" बटणाचेर क्लिक करा',
+                    '🗣️ मायक्रोफोन आयकॉनाचेर टॅप करा आनी तुमच्या भाशेंत शेताचो प्रस्न विचारा',
+                    '⌨️ वा टेक्स्ट इनपुट वापरून तुमचो प्रस्न टायप करा',
+                    '💡 सामान्य प्रस्नांखातीर वेगळे सूचना बटणां वापरा',
+                    '🔊 AI प्रतिसादांक ऑडियोंत आयका वा मजकूर परस वाचा'
+                ]
+            },
+            'bn': {
+                title: 'কীভাবে ব্যবহার করবেন',
+                text: 'Krishi.ai তে স্বাগতম - আপনার বুদ্ধিমান কৃষি সহায়ক!',
+                steps: [
+                    '🎤 নিচের "চ্যাট শুরু করুন" বোতামে ক্লিক করুন',
+                    '🗣️ মাইক্রোফোন আইকনে ট্যাপ করুন এবং আপনার ভাষায় কৃষি প্রশ্ন জিজ্ঞাসা করুন',
+                    '⌨️ অথবা টেক্সট ইনপুট ব্যবহার করে আপনার প্রশ্ন টাইপ করুন',
+                    '💡 সাধারণ প্রশ্নের জন্য দ্রুত পরামর্শ বোতাম ব্যবহার করুন',
+                    '🔊 AI প্রতিক্রিয়াগুলি অডিওতে শুনুন বা টেক্সট হিসাবে পড়ুন'
+                ]
+            }
+        };
+
+
+        function showInstructions(lang) {
+            const data = instructions[lang];
+            const box = document.getElementById('instructionsBox');
+            
+            document.querySelectorAll('.lang-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            
+            box.style.opacity = '0';
+            box.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                let stepsHTML = '<ul class="instruction-steps">';
+                data.steps.forEach(step => {
+                    stepsHTML += `<li>${step}</li>`;
+                });
+                stepsHTML += '</ul>';
+                
+                box.innerHTML = `
+                    <h3 class="instruction-title">${data.title}</h3>
+                    <p class="instruction-text">${data.text}</p>
+                    ${stepsHTML}
+                `;
+                
+                box.style.opacity = '1';
+                box.style.transform = 'scale(1)';
+                
+                localStorage.setItem('selectedLanguage', lang);
+            }, 250);
+        }
+
+        function startChatting() {
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            window.location.href = `/chat?lang=${lang}`;
+        }
+
+        // window.addEventListener('scroll', () => {
+        //     const scrolled = window.pageYOffset;
+        //     const hero = document.querySelector('.hero');
+        //     if (hero && scrolled < window.innerHeight) {
+        //         hero.style.transform = `translateY(${scrolled * 0.4}px)`;
+        //     }
+        // });
+
+        window.onload = function() {
+            showInstructions('en');
+        };
+    </script>
+</body>
+</html>
