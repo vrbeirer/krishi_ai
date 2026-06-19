@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # API Configuration
-OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', 'your-openrouter-key-here')
+OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', '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')
 OPENROUTER_MODEL = "meta-llama/llama-3.1-8b-instruct:free"  # change model if needed
 
 # Language mapping
