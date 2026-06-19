@@ -1,24 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-import google.generativeai as genai
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
+import requests
+import os
 
 app = Flask(__name__)
 
 # API Configuration
-# GEMINI_API_KEY = "AIzaSyBdC4BJnV7NMn5tQzsx3r3ZgUJMsJPWH5k"
-import os
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', 'AIzaSyBdC4BJnV7NMn5tQzsx3r3ZgUJMsJPWH5k')
-
-genai.configure(api_key=GEMINI_API_KEY)
-
-safety_settings = {
-    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
-    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
-    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
-    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
-}
-
-model = genai.GenerativeModel('gemini-2.0-flash-exp', safety_settings=safety_settings)
+OPENROUTER_API_KEY = os.environ.get('OPENROUTER_API_KEY', 'your-openrouter-key-here')
+OPENROUTER_MODEL = "meta-llama/llama-3.1-8b-instruct:free"  # change model if needed
 
 # Language mapping
 LANGUAGES = {
@@ -52,7 +40,7 @@ FARMING_KNOWLEDGE = {
         'kok': 'चडशा पिकांखातीर NPK 10-26-26 खत वापरा। पेरणी वेळार एकरा खातीर 50 किलो आनी 30 दिसां उपरांत 25 किलो घाला।',
         'ha': 'जादातर फसलां खातर NPK 10-26-26 खाद का इस्तेमाल करो। बिजाई के बखत 50 किलो प्रति एकड़ अर 30 दिन बाद 25 किलो पाओ।',
     },
-    
+
     'pest_control': {
         'en': 'For pest control, spray Neem oil (30ml per liter) or Imidacloprid in evening hours. Repeat after 7-10 days if needed.',
         'hi': 'कीट नियंत्रण के लिए शाम को नीम का तेल (30 मिली प्रति लीटर) या Imidacloprid स्प्रे करें। जरूरत पड़े तो 7-10 दिन बाद दोहराएं।',
@@ -67,7 +55,7 @@ FARMING_KNOWLEDGE = {
         'kok': 'किडो नियंत्रण खातीर सांजेर कडुनिंबाचें तेल (30 मिली प्रति लिटर) वा Imidacloprid फवारा. गरज आसल्यार 7-10 दिसांनी परत करा।',
         'ha': 'कीड़ा नियंत्रण खातर सांझ के नीम का तेल (30 मिली प्रति लीटर) या Imidacloprid स्प्रे करो। जरूरत पड़े तो 7-10 दिन बाद दोहराओ।',
     },
-    
+
     'irrigation': {
         'en': 'Water crops early morning or evening. For rice, maintain 2-3 inches standing water. For wheat, irrigate every 20-25 days.',
         'hi': 'फसलों को सुबह या शाम को पानी दें। धान के लिए 2-3 इंच खड़ा पानी रखें। गेहूं के लिए हर 20-25 दिन में सिंचाई करें।',
@@ -82,7 +70,7 @@ FARMING_KNOWLEDGE = {
         'kok': 'पिकांक सकाळीं वा सांजेर उदक द्या. भाता खातीर 2-3 इंच उभें उदक दवरा. गंव खातीर दर 20-25 दिसांनी उदक द्या.',
         'ha': 'फसलां नै सवेरे या सांझ पाणी द्यो। धान खातर 2-3 इंच खड़ा पाणी राखो। गेहूं खातर हर 20-25 दिन सिंचाई करो।',
     },
-    
+
     'weather': {
         'en': 'Check local weather forecast before farming. Avoid spraying pesticides before rain. Best temperature for farming is 20-30°C with moderate humidity.',
         'hi': 'खेती से पहले स्थानीय मौसम पूर्वानुमान देखें। बारिश से पहले कीटनाशक छिड़काव न करें। खेती के लिए सबसे अच्छा तापमान 20-30°C मध्यम आर्द्रता के साथ है।',
@@ -97,7 +85,7 @@ FARMING_KNOWLEDGE = {
         'kok': 'शेती करचे पयलीं स्थानीक हवामान अदमास पळयात. पावसा पयलीं किडोनाशक फवारणी टाळात. शेतीखातीर सर्वोत्तम तापमान 20-30°C मध्यम आर्द्रताय लागून.',
         'ha': 'खेती तै पहल्यां स्थानीय मौसम पूर्वानुमान देखो। बारिश तै पहल्यां कीटनाशक छिड़काव ना करो। खेती खातर सबतै बढ़िया तापमान 20-30°C मध्यम नमी कै साथ सै।',
     },
-    
+
     'crop_selection': {
         'en': 'Kharif season: Rice, Cotton, Soybean, Maize. Rabi season: Wheat, Mustard, Chickpea. Zaid season: Cucumber, Watermelon. Choose based on soil type and water availability.',
         'hi': 'खरीफ मौसम: धान, कपास, सोयाबीन, मक्का। रबी मौसम: गेहूं, सरसों, चना। जायद मौसम: खीरा, तरबूज। मिट्टी के प्रकार और पानी की उपलब्धता के आधार पर चुनें।',
@@ -112,7 +100,7 @@ FARMING_KNOWLEDGE = {
         'kok': 'खरीफ हंगाम: भात, कापूस, सोयाबीन, मका. रब्बी हंगाम: गंव, मोहरी, हरभरा. जायद हंगाम: काकडी, कलिंगड. माती प्रकार आनी उदक उपलब्धताचे आधारान निवडात.',
         'ha': 'खरीफ मौसम: धान, कपास, सोयाबीन, मक्का। रबी मौसम: गेहूं, सरसों, चना। जायद मौसम: खीरा, तरबूज। माटी के प्रकार अर पाणी की उपलब्धता के आधार पै चुनो।',
     },
-    
+
     'soil_management': {
         'en': 'Test soil pH every year. Add organic compost 5-10 tons per acre. For acidic soil, add lime. For alkaline soil, add gypsum. Maintain proper drainage.',
         'hi': 'हर साल मिट्टी का pH टेस्ट करें। 5-10 टन प्रति एकड़ जैविक खाद डालें। अम्लीय मिट्टी के लिए चूना डालें। क्षारीय मिट्टी के लिए जिप्सम डालें। उचित जल निकासी बनाए रखें।',
@@ -121,13 +109,13 @@ FARMING_KNOWLEDGE = {
         'ta': 'ஒவ்வொரு ஆண்டும் மண் pH சோதனை செய்யவும். ஏக்கருக்கு 5-10 டன் கரிம உரம் சேர்க்கவும். அமில மண்ணுக்கு சுண்ணாம்பு சேர்க்கவும். காரமண் க்கு ஜிப்சம் சேர்க்கவும். சரியான வடிகால் பராமரிக்கவும்.',
         'te': 'ప్రతి సంవత్సరం నేల pH పరీక్షించండి. ఎకరాకు 5-10 టన్నుల సేంద్రీయ ఎరువు వేయండి. ఆమ్ల నేలకు సున్నం వేయండి. క్షార నేలకు జిప్సం వేయండి. సరైన నీటి ప్రవాహం నిర్వహించండి.',
         'ml': 'എല്ലാ വർഷവും മണ്ണിന്റെ pH പരിശോധിക്കുക. ഏക്കറിന് 5-10 ടൺ ജൈവ വളം ചേർക്കുക. അമ്ല മണ്ണിന് കുമ്മായം ചേർക്കുക. ക്ഷാര മണ്ണിന് ജിപ്സം ചേർക്കുക. ശരിയായ വാൽച്ചത് നിലനിർത്തുക.',
-        'gu': 'દર વર્ષે જમીનનું pH પરીક્ષણ કરો. એકર દીઠ 5-10 ટન કાર્બનિક ખાતર નાખો. એસિડિક જમીન માટે ચૂનો નાખો. ક્ષારયુક્ત જમીન માટે જીપસમ નાખો. યોગ્ય ડ્રેનેજ જાળવો.',
+        'gu': 'દર વર્ષે જمीনनું pH પरीक्षण કरો. એکर દीઠ 5-10 ટن કার્بनिक ખাтर નाखो. एसिडिक जमीन माटे चूनो नाखो. ক্षারयुक्त जमीन माटे जीपसम नाखो. योग्य ड्रेनेज जाळवो.',
         'pa': 'ਹਰ ਸਾਲ ਮਿੱਟੀ ਦਾ pH ਟੈਸਟ ਕਰੋ। ਐਕੜ ਵਿਚ 5-10 ਟਨ ਜੈਵਿਕ ਖਾਦ ਪਾਓ। ਤੇਜ਼ਾਬੀ ਮਿੱਟੀ ਲਈ ਚੂਨਾ ਪਾਓ। ਖਾਰੀ ਮਿੱਟੀ ਲਈ ਜਿਪਸਮ ਪਾਓ। ਠੀਕ ਡਰੇਨੇਜ ਬਣਾਏ ਰੱਖੋ।',
         'bho': 'हर साल माटी के pH टेस्ट करीं। 5-10 टन प्रति एकड़ जैविक खाद डालीं। अम्लीय माटी खातिर चूना डालीं। क्षारीय माटी खातिर जिप्सम डालीं। उचित पानी निकासी बनाए रखीं।',
         'kok': 'दर वर्सा माती pH चाचणी करात. एकरा खातीर 5-10 टन सेंद्रिय खत घालात. आम्लीय माती खातीर चुनो घालात. क्षारीय माती खातीर जिप्सम घालात. योग्य उदक निचरो दवरात.',
         'ha': 'हर साल माटी का pH टेस्ट करो। 5-10 टन प्रति एकड़ जैविक खाद पाओ। अम्लीय माटी खातर चूना पाओ। क्षारीय माटी खातर जिप्सम पाओ। सही पाणी निकास बणाए राखो।',
     },
-    
+
     'market_prices': {
         'en': 'Check daily market prices at your local mandi or use government apps like e-NAM. Sell when prices are high. Store properly to sell in off-season for better profits.',
         'hi': 'अपनी स्थानीय मंडी में रोज बाजार भाव देखें या e-NAM जैसे सरकारी ऐप इस्तेमाल करें। जब दाम ऊंचे हों तब बेचें। बेहतर मुनाफे के लिए ऑफ सीजन में बेचने हेतु सही तरीके से भंडारण करें।',
@@ -136,13 +124,13 @@ FARMING_KNOWLEDGE = {
         'ta': 'உங்கள் உள்ளூர் மண்டியில் தினசரி சந்தை விலைகளைச் சரிபார்க்கவும் அல்லது e-NAM போன்ற அரசு பயன்பாடுகளைப் பயன்படுத்தவும். விலைகள் அதிகமாக இருக்கும் போது விற்கவும். சிறந்த லாபத்திற்காக சீசன் இல்லாத காலத்தில் விற்க சரியாக சேமிக்கவும்.',
         'te': 'మీ స్థానిక మండిలో రోజువారీ మార్కెట్ ధరలను తనిఖీ చేయండి లేదా e-NAM వంటి ప్రభుత్వ యాప్‌లను ఉపయోగించండి. ధరలు ఎక్కువగా ఉన్నప్పుడు అమ్మండి. మెరుగైన లాభాల కోసం ఆఫ్ సీజన్‌లో అమ్మడానికి సరిగ్గా నిల్వ చేయండి.',
         'ml': 'നിങ്ങളുടെ പ്രാദേശിക മണ്ഡിയിൽ ദൈനംദിന വിപണി വിലകൾ പരിശോധിക്കുക അല്ലെങ്കിൽ e-NAM പോലുള്ള സർക്കാർ ആപ്പുകൾ ഉപയോഗിക്കുക. വില ഉയർന്നപ്പോൾ വിൽക്കുക. മികച്ച ലാഭത്തിനായി ഓഫ് സീസണിൽ വിൽക്കാൻ ശരിയായി സൂക്ഷിക്കുക.',
-        'gu': 'તમારા સ્થાનિક મંડીમાં દૈનિક બજાર ભાવ તપાસો અથવા e-NAM જેવી સરકારી એપ્લિકેશનનો ઉપયોગ કરો. જ્યારે ભાવ ઊંચા હોય ત્યારે વેચો. વધુ સારા નફા માટે ઑફ-સીઝનમાં વેચવા માટે યોગ્ય રીતે સંગ્રહ કરો.',
+        'gu': 'તमारी સ્થानিક મंडीमां દৈनিক बाজার ভাव তпасо অথবা e-NAM जेवी সরকারी অ্যাপ вापरо. জब ভাব উँচা হো ત্যারे বেचো. ভালা নফা খাতর অফ সीজনमां বেচвा सारू যोগ्य तরे साठवो.',
         'pa': 'ਆਪਣੀ ਸਥਾਨਕ ਮੰਡੀ ਵਿੱਚ ਰੋਜ਼ਾਨਾ ਮਾਰਕੀਟ ਭਾਅ ਚੈੱਕ ਕਰੋ ਜਾਂ e-NAM ਵਰਗੇ ਸਰਕਾਰੀ ਐਪ ਵਰਤੋ। ਜਦੋਂ ਭਾਅ ਵੱਧ ਹੋਣ ਤਾਂ ਵੇਚੋ। ਬਿਹਤਰ ਮੁਨਾਫੇ ਲਈ ਆਫ-ਸੀਜ਼ਨ ਵਿੱਚ ਵੇਚਣ ਲਈ ਸਹੀ ਢੰਗ ਨਾਲ ਸਟੋਰ ਕਰੋ।',
         'bho': 'अपन स्थानीय मंडी में रोज बाजार भाव देखीं भा e-NAM जइसन सरकारी ऐप इस्तेमाल करीं। जब दाम ऊंच होखे तब बेचीं। बढ़िया मुनाफा खातिर ऑफ सीजन में बेचे खातिर सही तरीका से भंडारण करीं।',
         'kok': 'तुमच्या स्थानीक मंडींत रोज बाजार भाव पळयात वा e-NAM सारकी सरकारी अॅप वापरात. किमती चड आसतना विकात. बरे फायदा खातीर ऑफ सीझनांत विकपाखातीर बरेच तरेन साठोवात.',
         'ha': 'अपणी स्थानीय मंडी में रोज बाजार भाव देखो या e-NAM जिसी सरकारी ऐप इस्तेमाल करो। जब दाम ऊंचे होवे तो बेचो। बढ़िया मुनाफे खातर ऑफ सीजन में बेचण खातर सही तरीके तै भंडारण करो।',
     },
-    
+
     'disease_control': {
         'en': 'For fungal diseases, spray Mancozeb or Copper oxychloride. For bacterial diseases, use Streptomycin. Remove infected plants immediately. Maintain field cleanliness.',
         'hi': 'फंगल रोगों के लिए Mancozeb या Copper oxychloride स्प्रे करें। बैक्टीरियल रोगों के लिए Streptomycin का उपयोग करें। संक्रमित पौधों को तुरंत हटाएं। खेत की सफाई बनाए रखें।',
@@ -151,13 +139,13 @@ FARMING_KNOWLEDGE = {
         'ta': 'பூஞ்சை நோய்களுக்கு Mancozeb அல்லது Copper oxychloride தெளிக்கவும். பாக்டீரியா நோய்களுக்கு Streptomycin பயன்படுத்தவும். பாதிக்கப்பட்ட தாவரங்களை உடனடியாக அகற்றவும். வயல் சுத்தத்தை பராமரிக்கவும்.',
         'te': 'శిలీంధ్ర వ్యాధులకు Mancozeb లేదా Copper oxychloride స్ప్రే చేయండి. బ్యాక్టీరియా వ్యాధులకు Streptomycin ఉపయోగించండి. సోకిన మొక్కలను వెంటనే తొలగించండి. పొలం పరిశుభ్రత నిర్వహించండి.',
         'ml': 'ഫംഗൽ രോഗങ്ങൾക്ക് Mancozeb അല്ലെങ്കിൽ Copper oxychloride തളിക്കുക. ബാക്ടീരിയ രോഗങ്ങൾക്ക് Streptomycin ഉപയോഗിക്കുക. രോഗബാധിതമായ ചെടികൾ ഉടൻ നീക്കംചെയ്യുക. വയൽ ശുചിത്വം പാലിക്കുക.',
-        'gu': 'ફૂગના રોગો માટે Mancozeb અથવા Copper oxychloride છંટકાવ કરો. બેક્ટેરિયલ રોગો માટે Streptomycin વાપરો. ચેપગ્રસ્ત છોડને તાત્કાલિક દૂર કરો. ખેતરની સ્વચ્છતા જાળવો.',
+        'gu': 'ફૂગना રोगো माटे Mancozeb अथवा Copper oxychloride छंटकाव করो. बेक्टेरियल रोगो माटे Streptomycin वापरो. चेपग्रस्त छोडने तात्कालिक दूर करो. खेतरनी स्वच्छता जाळवो.',
         'pa': 'ਉੱਲੀ ਦੇ ਰੋਗਾਂ ਲਈ Mancozeb ਜਾਂ Copper oxychloride ਛਿੜਕੋ। ਬੈਕਟੀਰੀਅਲ ਰੋਗਾਂ ਲਈ Streptomycin ਵਰਤੋ। ਸੰਕਰਮਿਤ ਪੌਦਿਆਂ ਨੂੰ ਤੁਰੰਤ ਹਟਾਓ। ਖੇਤ ਦੀ ਸਫਾਈ ਬਣਾਏ ਰੱਖੋ।',
         'bho': 'फंगल बीमारी खातिर Mancozeb भा Copper oxychloride स्प्रे करीं। बैक्टीरियल बीमारी खातिर Streptomycin के इस्तेमाल करीं। संक्रमित पौधा के तुरंत हटाईं। खेत के सफाई बनाए रखीं।',
         'kok': 'बुरशीजन्य रोगांखातीर Mancozeb वा Copper oxychloride फवारात. जीवाणूजन्य रोगांखातीर Streptomycin वापरात. संक्रमित रोपां तोंडाळक काडात. शेताची स्वच्छताय दवरात.',
         'ha': 'फंगल बीमारी खातर Mancozeb या Copper oxychloride स्प्रे करो। बैक्टीरियल बीमारी खातर Streptomycin का इस्तेमाल करो। संक्रमित पौधा नै तोड़ के हटाओ। खेत की साफ-सफाई बणाए राखो।',
     },
-    
+
     'organic_farming': {
         'en': 'Use vermicompost, cow dung, and green manure. For pest control, use Neem, garlic spray. Crop rotation prevents diseases. Avoid chemical pesticides and fertilizers.',
         'hi': 'वर्मीकम्पोस्ट, गोबर की खाद और हरी खाद का उपयोग करें। कीट नियंत्रण के लिए नीम, लहसुन का स्प्रे करें। फसल चक्र से बीमारियां रुकती हैं। रासायनिक कीटनाशक और उर्वरक से बचें।',
@@ -166,7 +154,7 @@ FARMING_KNOWLEDGE = {
         'ta': 'மண்புழு உரம், மாட்டு எரு, பசுந்தாள் உரம் பயன்படுத்தவும். பூச்சி கட்டுப்பாட்டுக்கு வேப்பம், பூண்டு தெளிக்கவும். பயிர் சுழற்சி நோய்களை தடுக்கிறது. ரசாயன பூச்சிக்கொல்லிகள் மற்றும் உரங்களை தவிர்க்கவும்.',
         'te': 'వర్మీకంపోస్ట్, ఆవు పేడ, పచ్చి ఎరువు వాడండి. పురుగుల నియంత్రణకు వేప, వెల్లుల్లి స్ప్రే చేయండి. పంట మార్పిడి వ్యాధులను నివారిస్తుంది. రసాయన పురుగుమందులు మరియు ఎరువులను తప్పించండి.',
         'ml': 'വേർമികമ്പോസ്റ്റ്, പശുവളം, പച്ചിലവളം ഉപയോഗിക്കുക. കീടനിയന്ത്രണത്തിന് വേപ്പ്, വെളുത്തുള്ളി തളിക്കുക. വിള മാറ്റം രോഗങ്ങളെ തടയുന്നു. രാസ കീടനാശിനികളും വളങ്ങളും ഒഴിവാക്കുക.',
-        'gu': 'વર્મીકમ્પોસ્ટ, ગાયનું છાણ, લીલા ખાતરનો ઉપયોગ કરો. જંતુ નિયંત્રણ માટે લીમડો, લસણનો છંટકાવ કરો. પાક ફેરબદલ રોગ રોકે છે. રાસાયણિક જંતુનાશકો અને ખાતરો ટાળો.',
+        'gu': 'વर्मीकम्पोस्ट, गायनुं छाण, लीला खातरनो उपयोग करो. जंतु नियंत्रण माटे लीमडो, लसणनो छंटकाव करो. पाक फेरबदल रोग रोके छे. रासायणिक जंतुनाशको अने खातरो टाळो.',
         'pa': 'ਵਰਮੀਕੰਪੋਸਟ, ਗਾਂ ਦਾ ਗੋਹਾ, ਅਤੇ ਹਰੀ ਖਾਦ ਵਰਤੋ। ਕੀੜੇ ਨਿਯੰਤਰਣ ਲਈ ਨਿੰਮ, ਲਸਣ ਛਿੜਕੋ। ਫਸਲ ਚੱਕਰ ਬੀਮਾਰੀਆਂ ਰੋਕਦਾ ਹੈ। ਰਸਾਇਣਕ ਕੀਟਨਾਸ਼ਕ ਅਤੇ ਖਾਦਾਂ ਤੋਂ ਪਰਹੇਜ਼ ਕਰੋ।',
         'bho': 'वर्मीकम्पोस्ट, गोबर के खाद आ हरियर खाद के इस्तेमाल करीं। कीड़ा नियंत्रण खातिर नीम, लहसुन के स्प्रे करीं। फसल चक्र से बीमारी रुकेला। रासायनिक कीटनाशक आ उर्वरक से बचीं।',
         'kok': 'वर्मीकम्पोस्ट, गायीचें शेण, आनी पाचवें खत वापरात. किडो नियंत्रण खातीर कडुनिंब, लसूण फवारात. पीक फिरोवण रोग टळटा. रासायनिक किडोनाशक आनी खतां टाळात.',
@@ -174,44 +162,58 @@ FARMING_KNOWLEDGE = {
     },
 }
 
+
 @app.route('/')
 def home():
     """Landing page"""
     return render_template('home.html')
+
 
 @app.route('/chat')
 def chat_page():
     """Chatbot interface"""
     return render_template('chat.html')
 
+
 @app.route('/chat', methods=['POST'])
 def chat():
-    """Process user query using Google Gemini API"""
+    """Process user query using OpenRouter API"""
     try:
         data = request.json
         user_message = data.get('message', '')
         language_code = data.get('language', 'en')
         language_name = LANGUAGES.get(language_code, 'English')
-        
+
         prompt = f"Answer this farmer's question in {language_name} language (keep it short, 2-3 sentences): {user_message}"
-        
+
         print(f"🔄 Query: {user_message}")
-        
+
         try:
-            response = model.generate_content(prompt)
-            ai_response = response.text.strip()
-            print(f"✅ Gemini Response: {ai_response[:80]}")
+            response = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": OPENROUTER_MODEL,
+                    "messages": [{"role": "user", "content": prompt}]
+                },
+                timeout=15
+            )
+            ai_response = response.json()["choices"][0]["message"]["content"].strip()
+            print(f"✅ OpenRouter Response: {ai_response[:80]}")
         except Exception as api_error:
-            print(f"⚠️ Gemini API failed: {str(api_error)}")
+            print(f"⚠️ OpenRouter API failed: {str(api_error)}")
             ai_response = get_comprehensive_answer(user_message, language_code)
             print(f"📚 Using fallback answer")
-        
+
         return jsonify({
             'success': True,
             'response': ai_response,
             'suggestions': generate_suggestions(user_message)
         })
-    
+
     except Exception as e:
         print(f"❌ Error: {e}")
         return jsonify({
@@ -220,50 +222,51 @@ def chat():
             'suggestions': []
         })
 
+
 def get_comprehensive_answer(question, language_code):
     """Intelligent fallback with comprehensive farming knowledge in all languages"""
     q = question.lower()
-    
-    # Determine topic
+
     if any(word in q for word in ['fertilizer', 'खाद', 'खत', 'ಗೊಬ್ಬರ', 'உரம்', 'ఎరువు', 'വളം', 'ખાતર', 'ਖਾਦ']):
         return FARMING_KNOWLEDGE['fertilizer'].get(language_code, FARMING_KNOWLEDGE['fertilizer']['en'])
-    
-    elif any(word in q for word in ['pest', 'insect', 'कीट', 'कीटक', 'ಕೀಟ', 'பூச்சி', 'పురుగు', 'കീടം', 'જંતુ', 'ਕੀੜੇ', 'किडो']):
+
+    elif any(word in q for word in ['pest', 'insect', 'कीट', 'कीटक', 'ಕೀಟ', 'பூச்சி', 'పురుగు', 'കീടം', 'જંతુ', 'ਕੀੜੇ', 'किडो']):
         return FARMING_KNOWLEDGE['pest_control'].get(language_code, FARMING_KNOWLEDGE['pest_control']['en'])
-    
+
     elif any(word in q for word in ['water', 'irrigation', 'पानी', 'सिंचन', 'सिंचाई', 'ನೀರು', 'தண்ணீர்', 'నీరు', 'വെള്ളം', 'પાણી', 'ਪਾਣੀ', 'उदक']):
         return FARMING_KNOWLEDGE['irrigation'].get(language_code, FARMING_KNOWLEDGE['irrigation']['en'])
-    
+
     elif any(word in q for word in ['weather', 'rain', 'मौसम', 'हवामान', 'ಹವಾಮಾನ', 'வானிலை', 'వాతావరణం', 'കാലാവസ്ഥ', 'હવામાન', 'ਮੌਸਮ', 'बरखा', 'पाऊस']):
         return FARMING_KNOWLEDGE['weather'].get(language_code, FARMING_KNOWLEDGE['weather']['en'])
-    
+
     elif any(word in q for word in ['crop', 'plant', 'seed', 'फसल', 'पीक', 'ಬೆಳೆ', 'பயிர்', 'పంట', 'വിള', 'પાક', 'ਫਸਲ', 'बीज', 'roप']):
         return FARMING_KNOWLEDGE['crop_selection'].get(language_code, FARMING_KNOWLEDGE['crop_selection']['en'])
-    
-    elif any(word in q for word in ['soil', 'land', 'मिट्टी', 'माटी', 'ಮಣ್ಣು', 'மண்', 'నేల', 'മണ്ണ്', 'જમીન', 'ਮਿੱਟੀ']):
+
+    elif any(word in q for word in ['soil', 'land', 'मिट्टी', 'माटी', 'ಮಣ್ಣು', 'மண்', 'నేల', 'മണ്ണ്', 'જمীન', 'ਮਿੱਟੀ']):
         return FARMING_KNOWLEDGE['soil_management'].get(language_code, FARMING_KNOWLEDGE['soil_management']['en'])
-    
-    elif any(word in q for word in ['price', 'market', 'sell', 'बाजार', 'मंडी', 'ಮಾರುಕಟ್ಟೆ', 'சந்தை', 'మార్కెట్', 'വിപണി', 'બજાર', 'ਮਾਰਕੀਟ', 'विकपा']):
+
+    elif any(word in q for word in ['price', 'market', 'sell', 'बाजार', 'मंडी', 'ಮಾರುಕಟ್ಟೆ', 'சந்தை', 'మార్కెట్', 'വിപണി', 'બજார', 'ਮਾਰਕੀਟ', 'विकपा']):
         return FARMING_KNOWLEDGE['market_prices'].get(language_code, FARMING_KNOWLEDGE['market_prices']['en'])
-    
-    elif any(word in q for word in ['disease', 'sick', 'बीमारी', 'रोग', 'ರೋಗ', 'நோய்', 'వ్యాధి', 'രോഗം', 'રોગ', 'ਬੀਮਾਰੀ']):
+
+    elif any(word in q for word in ['disease', 'sick', 'बीमारी', 'रोग', 'ರೋಗ', 'நோய்', 'వ్యాధి', 'രോഗം', 'રোગ', 'ਬੀਮਾਰੀ']):
         return FARMING_KNOWLEDGE['disease_control'].get(language_code, FARMING_KNOWLEDGE['disease_control']['en'])
-    
-    elif any(word in q for word in ['organic', 'natural', 'जैविक', 'सेंद्रिय', 'ಸಾವಯವ', 'இயற்கை', 'సేంద్రీయ', 'ജൈവ', 'કાર્બનિક', 'ਜੈਵਿਕ']):
+
+    elif any(word in q for word in ['organic', 'natural', 'जैविक', 'सेंद्रिय', 'ಸಾವಯವ', 'இயற்கை', 'సేంద్రీయ', 'ജൈവ', 'કાર્બनिक', 'ਜੈਵਿਕ']):
         return FARMING_KNOWLEDGE['organic_farming'].get(language_code, FARMING_KNOWLEDGE['organic_farming']['en'])
-    
-    # Default response if no match
+
     default_responses = {
         'en': 'I can help you with farming questions about fertilizers, pest control, irrigation, weather, crops, soil, market prices, diseases, and organic farming. Please ask your specific question.',
         'hi': 'मैं आपको खाद, कीट नियंत्रण, सिंचाई, मौसम, फसलें, मिट्टी, बाजार भाव, बीमारियां और जैविक खेती के बारे में मदद कर सकता हूं। कृपया अपना विशिष्ट सवाल पूछें।',
         'mr': 'मी तुम्हाला खत, कीटक नियंत्रण, सिंचन, हवामान, पिके, माती, बाजार भाव, रोग आणि सेंद्रिय शेती बद्दल मदत करू शकतो. कृपया तुमचा विशिष्ट प्रश्न विचारा.',
     }
-    
+
     return default_responses.get(language_code, default_responses['en'])
+
 
 def generate_suggestions(query):
     suggestions = ['weather', 'fertilizer', 'pest', 'irrigation', 'crop_selection', 'market']
     return [{'type': s, 'text': QUICK_SUGGESTIONS[s]} for s in suggestions[:4]]
+
 
 @app.route('/translate', methods=['POST'])
 def translate_suggestion():
@@ -274,6 +277,6 @@ def translate_suggestion():
     except:
         return jsonify({'success': False, 'translated': text})
 
+
 if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0', port=5000)
-
