@@ -1,0 +1,17 @@
+{
+  "session_id": "765c985d-9e36-4195-b41a-0ca0f04f885f",
+  "last_seen": 1793003101.8209565,
+  "profile": {
+    "crop": "tur",
+    "district": "agricultural questions",
+    "state": "",
+    "soil_type": "",
+    "irrigation": "",
+    "farm_size_acres": "",
+    "preferred_language": "en"
+  },
+  "conversation_topics": [
+    "general"
+  ],
+  "last_intent": "general"
+}

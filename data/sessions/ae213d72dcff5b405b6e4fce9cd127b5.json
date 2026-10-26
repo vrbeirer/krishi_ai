@@ -1,0 +1,17 @@
+{
+  "session_id": "16b87054-3909-421f-b088-ad100d109fc5",
+  "last_seen": 1792943497.9053185,
+  "profile": {
+    "crop": "",
+    "district": "",
+    "state": "",
+    "soil_type": "",
+    "irrigation": "",
+    "farm_size_acres": "",
+    "preferred_language": "en"
+  },
+  "conversation_topics": [
+    "general"
+  ],
+  "last_intent": "general"
+}

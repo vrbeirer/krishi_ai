@@ -1,0 +1,17 @@
+{
+  "session_id": "dd516d81-f0a9-4242-bc0a-d976a62b43d3",
+  "last_seen": 1792962138.7884488,
+  "profile": {
+    "crop": "corn",
+    "district": "",
+    "state": "",
+    "soil_type": "",
+    "irrigation": "",
+    "farm_size_acres": "",
+    "preferred_language": "en"
+  },
+  "conversation_topics": [
+    "fertilizer_soil"
+  ],
+  "last_intent": "fertilizer_soil"
+}
