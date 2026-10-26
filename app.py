@@ -75,19 +75,19 @@ OPENROUTER_FALLBACK_MODELS  = [
 OPENROUTER_BASE_URL         = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1").rstrip("/")
 OPENROUTER_SITE_URL         = os.getenv("OPENROUTER_SITE_URL", "").strip()
 OPENROUTER_SITE_NAME        = os.getenv("OPENROUTER_SITE_NAME", "Krishi.ai").strip()
-OPENROUTER_TIMEOUT_SECONDS  = max(10, min(45, int(os.getenv("OPENROUTER_TIMEOUT_SECONDS", "25"))))
+OPENROUTER_TIMEOUT_SECONDS  = max(5, min(20, int(os.getenv("OPENROUTER_TIMEOUT_SECONDS", "8"))))
 
 # Gemini (primary provider — free tier, 1500 req/day)
 GOOGLE_API_KEY              = os.getenv("GOOGLE_API_KEY", "").strip()
 GEMINI_MODEL                = os.getenv("GEMINI_MODEL", "gemini-1.5-flash").strip() or "gemini-1.5-flash"
 GEMINI_BASE_URL             = "https://generativelanguage.googleapis.com/v1beta/models"
-GEMINI_TIMEOUT_SECONDS      = max(10, min(45, int(os.getenv("GEMINI_TIMEOUT_SECONDS", "25"))))
+GEMINI_TIMEOUT_SECONDS      = max(5, min(20, int(os.getenv("GEMINI_TIMEOUT_SECONDS", "8"))))
 
 # Groq (secondary provider — free tier, very fast)
 GROQ_API_KEY                = os.getenv("GROQ_API_KEY", "").strip()
 GROQ_MODEL                  = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant").strip() or "llama-3.1-8b-instant"
 GROQ_BASE_URL               = "https://api.groq.com/openai/v1"
-GROQ_TIMEOUT_SECONDS        = max(10, min(30, int(os.getenv("GROQ_TIMEOUT_SECONDS", "15"))))
+GROQ_TIMEOUT_SECONDS        = max(5, min(20, int(os.getenv("GROQ_TIMEOUT_SECONDS", "8"))))
 
 DATA_GOV_IN_API_KEY         = os.getenv("DATA_GOV_IN_API_KEY", "").strip()
 DATA_GOV_IN_RESOURCE_ID     = os.getenv("DATA_GOV_IN_RESOURCE_ID", "").strip()
@@ -860,9 +860,6 @@ def _gemini_chat(
                 timeout=(5, GEMINI_TIMEOUT_SECONDS),
             )
         except requests.RequestException as exc:
-            if attempt == 0:
-                time.sleep(0.8)
-                continue
             raise RuntimeError("Gemini network request failed") from exc
 
         if response.status_code >= 400:
@@ -872,7 +869,7 @@ def _gemini_chat(
                 detail = response.text[:220]
             err = f"Gemini HTTP {response.status_code}: {detail or 'no details'}"
             if response.status_code in {429, 500, 502, 503} and attempt == 0:
-                time.sleep(1.0)
+                time.sleep(0.3)
                 continue
             raise RuntimeError(err)
 
@@ -928,9 +925,6 @@ def _groq_chat(
                 timeout=(5, GROQ_TIMEOUT_SECONDS),
             )
         except requests.RequestException as exc:
-            if attempt == 0:
-                time.sleep(0.5)
-                continue
             raise RuntimeError("Groq network request failed") from exc
 
         if response.status_code >= 400:
@@ -940,7 +934,7 @@ def _groq_chat(
                 detail = response.text[:220]
             err = f"Groq HTTP {response.status_code}: {detail or 'no details'}"
             if response.status_code in {429, 500, 502, 503} and attempt == 0:
-                time.sleep(0.8)
+                time.sleep(0.3)
                 continue
             raise RuntimeError(err)
 
