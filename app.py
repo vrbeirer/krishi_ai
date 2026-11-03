@@ -1621,8 +1621,4 @@ def not_found(_error):
 
 if __name__ == "__main__":
     debug = os.getenv("FLASK_DEBUG", "false").lower() in {"1", "true", "yes"}
-    app.run(
-        host=os.getenv("HOST", "127.0.0.1"),
-        port=int(os.getenv("PORT", "5000")),
-        debug=debug,
-    )
+    app.run(host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", "5000")), debug=debug)
