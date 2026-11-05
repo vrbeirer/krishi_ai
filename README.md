@@ -364,6 +364,6 @@ Generative AI Engineer | AI & LLM Applications
 
   **🌾 Making agricultural knowledge accessible, one conversation at a time.**
 
-  *Built with ❤️ for India's farming community.*
+  *Built with ❤️ for India's farming community - By Pranav*
 
 </div>
