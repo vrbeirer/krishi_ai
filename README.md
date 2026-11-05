@@ -1,120 +1,369 @@
-# Krishi.ai backend
+ <div align="center">
 
-Flask backend matched to the supplied single-file `krishi.html` frontend.
+  <img src="assets/krishi-farming-hero.gif" alt="Krishi.ai - Indian farming at sunrise" width="100%"/>
 
-## What it includes
+  # 🌾 Krishi.ai
 
-- Serves the complete frontend at `/` and `/chat`.
-- Implements the exact `POST /chat` and `POST /translate` JSON contracts used by the HTML.
-- Calls OpenRouter using a server-side environment variable. The default model is a named free model (`nvidia/nemotron-3-ultra-550b-a55b:free`) rather than a router that randomly selects a free model. Ordered model fallbacks are configured by `OPENROUTER_FALLBACK_MODELS`, using API-compatible models (the fallback list avoids agent-harness-only models). Free model availability and quality still vary; a paid endpoint is more appropriate for production reliability.
-- Uses prior chat messages sent by the frontend, with validation and size limits.
-- Retrieves relevant snippets from local knowledge files (RAG). The default lightweight retrieval requires no extra ML package. Optional ChromaDB + Sentence Transformers support is available.
-- Includes health checks at `/health` and `/api/health`.
-- Fetches a current/3-day weather forecast from Open-Meteo when the farmer explicitly names an Indian location in the question. The answer is labelled as model forecast data, not an official IMD warning.
-- Supports optional live government mandi-price lookup through the data.gov.in API when its API key and resource ID are configured.
-- Avoids inventing prices or weather when no matching provider data was returned, and avoids unsafe generic pesticide dosage/fertilizer claims.
-- Adds limited optional CORS for a separately hosted frontend.
+  **Your AI-Powered Farming Companion**
 
-## Run on Windows PowerShell
+  *Smarter farming decisions through multilingual AI, intelligent retrieval, and real-time agricultural insights.*
 
-1. Extract this folder somewhere convenient.
-2. Create and activate a virtual environment:
+  ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+  ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
+  ![FAISS](https://img.shields.io/badge/FAISS-00599C?style=for-the-badge)
+  ![AI](https://img.shields.io/badge/Generative_AI-8A2BE2?style=for-the-badge)
+  ![Languages](https://img.shields.io/badge/13_Languages-228B22?style=for-the-badge)
 
-   ```powershell
-   cd path\to\krishi_backend
-   py -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   python -m pip install --upgrade pip
-   pip install -r requirements.txt
-   ```
+</div>
 
-3. Create your `.env` from the example and add your key:
+---
 
-   ```powershell
-   Copy-Item .env.example .env
-   notepad .env
-   ```
+## 🌱 About Krishi.ai
 
-   Set `OPENROUTER_API_KEY` to the key from your OpenRouter account. If you already have a `.env` file, keep your existing key and update the `OPENROUTER_MODEL` and `OPENROUTER_FALLBACK_MODELS` lines to match `.env.example`. Do not put the key in `krishi.html`, GitHub, or a public frontend. The default `OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free` is a named free model. Recommended API fallback models are configured in `.env.example`. If you use a different model in `.env`, it must be an API model enabled for your OpenRouter key.
+**Krishi.ai** is a multilingual, multimodal AI farming assistant designed to make agricultural knowledge more accessible to Indian farmers.
 
-4. Start the backend:
+Instead of relying on simple keyword-based chatbot responses, Krishi.ai combines semantic search, Retrieval-Augmented Generation (RAG), conversational context, and multiple LLM providers to deliver relevant farming guidance.
 
-   ```powershell
-   python app.py
-   ```
+Farmers can ask questions in their preferred language, upload crop images for visual analysis, explore weather conditions, retrieve mandi prices, and receive contextual agricultural recommendations through a single conversational interface.
 
-5. Open `http://127.0.0.1:5000`. Check `http://127.0.0.1:5000/health` for backend status.
+## ✨ Key Features
 
-## API contract
+| Feature | Description |
+|---|---|
+| 🌍 Multilingual AI | Supports 13 Indian and international languages. |
+| 🧠 Semantic RAG | FAISS-powered vector retrieval with MiniLM embeddings. |
+| 💬 Contextual Conversations | History-aware query rewriting and conversation summarization. |
+| 🌿 Crop Image Analysis | Gemini Vision-powered crop symptom and damage analysis. |
+| 🌦️ Weather Insights | Location-based 3-day forecasts using Open-Meteo. |
+| 📊 Mandi Prices | Agricultural market prices through data.gov.in/AGMARKNET when configured. |
+| 📄 Dynamic Knowledge Base | Upload PDF, TXT, MD, RST, and CSV documents without restarting the application. |
+| 🔄 Multi-LLM Fallback | Automatic provider fallback across Gemini, Groq, and OpenRouter. |
+| 🧑‍🌾 Farmer Profiles | Maintains crop, location, soil, and irrigation information. |
+| ⚡ SSE Responses | Server-Sent Events endpoint for incremental response delivery. |
+| 💾 Persistent Storage | SQLite-backed profiles, session metadata, and conversation summaries. |
 
-### `POST /chat`
+## 🌍 Supported Languages
 
-Request:
+Krishi.ai currently supports 13 languages:
+
+| Language | Language Code |
+|---|---|
+| English | `en` |
+| Hindi | `hi` |
+| Marathi | `mr` |
+| Kannada | `kn` |
+| Tamil | `ta` |
+| Telugu | `te` |
+| Malayalam | `ml` |
+| Gujarati | `gu` |
+| Punjabi | `pa` |
+| Bhojpuri | `bho` |
+| Konkani | `kok` |
+| Haryanvi | `ha` |
+| Bengali | `bn` |
+
+Responses are generated in the selected language to make agricultural guidance easier to understand.
+
+## 🧠 How It Works
+
+Krishi.ai uses a context-aware processing pipeline to understand farmer queries and generate relevant responses.
+
+```mermaid
+flowchart TD
+    A["👨‍🌾 Farmer Query"] --> B["Language Selection & Intent Detection"]
+    B --> C["Farmer Profile & Conversation Context"]
+    C --> D["History-Aware Query Rewriting"]
+    D --> E["FAISS + MiniLM Semantic Retrieval"]
+    E --> F["Weather / Mandi Data Integration"]
+    F --> G["LLM Provider Selection"]
+    G --> H["Gemini"]
+    H --> I["Groq Fallback"]
+    I --> J["OpenRouter Fallback"]
+    G --> K["Context-Aware AI Response"]
+    J --> K
+    K --> L["🌱 Farmer-Facing Response"]
+    L --> M["SQLite Session Updates"]
+```
+
+**Note:** The actual provider cascade is Gemini → Groq → OpenRouter. The diagram illustrates this fallback sequence.
+
+## 🔬 Technical Highlights
+
+### 1. Retrieval-Augmented Generation (RAG)
+
+Krishi.ai uses semantic retrieval instead of relying only on keyword matching.
+
+- Converts agricultural documents into text chunks.
+- Generates embeddings using `all-MiniLM-L6-v2`.
+- Stores normalized embeddings in a FAISS vector index.
+- Retrieves relevant chunks using cosine similarity.
+- Applies a configurable confidence threshold to filter weak matches.
+- Falls back to lexical retrieval when semantic dependencies are unavailable.
+
+### 2. Context-Aware Conversations
+
+The application maintains conversational continuity through:
+
+- History-aware query rewriting for short or ambiguous follow-up questions.
+- Farmer profile extraction from conversation messages.
+- Conversation summarization after a configurable number of turns.
+- SQLite-based persistent session metadata.
+- Contextual follow-up suggestions based on detected intent.
+
+### 3. Multimodal Crop Analysis
+
+Farmers can upload crop photographs for visual analysis using Gemini Vision.
+
+The system examines visible symptoms such as:
+
+- Leaf discoloration and spots.
+- Pest damage and lesions.
+- Wilting and unusual textures.
+- Potential nutrient deficiencies or environmental stress.
+
+It then generates possible explanations and practical next steps in the selected language.
+
+### 4. Live Agricultural Data
+
+**Weather:** Uses Open-Meteo geocoding and forecast APIs to retrieve location-based weather information and a 3-day forecast.
+
+**Mandi Prices:** Integrates the data.gov.in agricultural market API to retrieve commodity prices, including minimum, maximum, and modal prices, when API credentials are configured.
+
+### 5. Intelligent LLM Fallback
+
+Krishi.ai uses a multi-provider architecture to improve service availability.
+
+| Priority | Provider | Purpose |
+|---|---|---|
+| 1 | Google Gemini | Primary LLM provider |
+| 2 | Groq | Automatic fallback |
+| 3 | OpenRouter | Secondary fallback |
+
+Provider credentials and model configurations are managed through environment variables rather than hardcoded API keys.
+
+## 🛠️ Technology Stack
+
+| Category | Technologies |
+|---|---|
+| Language | Python |
+| Backend | Flask, REST APIs |
+| AI & LLMs | Gemini, Groq, OpenRouter |
+| Embeddings | Sentence Transformers, MiniLM |
+| Vector Database | FAISS |
+| Multimodal AI | Gemini Vision |
+| Data Processing | NumPy, PDFMiner, PyPDF |
+| Database | SQLite |
+| External APIs | Open-Meteo, data.gov.in |
+| Configuration | Python-dotenv |
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10 or later.
+- Git.
+- API credentials for the LLM providers you intend to use.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/vrbeirer/Krishi.ai.git
+cd Krishi.ai
+```
+
+### 2. Create a Virtual Environment
+
+```bash
+python -m venv venv
+```
+
+Activate it:
+
+**Windows**
+```bash
+venv\Scripts\activate
+```
+
+**Linux / macOS**
+```bash
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install Flask python-dotenv requests numpy faiss-cpu sentence-transformers pdfminer.six pypdf flask-cors
+```
+
+### 4. Configure Environment Variables
+
+Create a `.env` file in the project root.
+
+```env
+# Google Gemini
+GOOGLE_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-1.5-flash
+
+# Groq
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.1-8b-instant
+
+# OpenRouter
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=nvidia/nemotron-3-ultra-550b-a55b:free
+
+# Agricultural Market Data (Optional)
+DATA_GOV_IN_API_KEY=
+DATA_GOV_IN_RESOURCE_ID=
+
+# Application Configuration
+KRISHI_KNOWLEDGE_DIR=knowledge
+KRISHI_DATA_DIR=data
+RAG_TOP_K=5
+RAG_SCORE_THRESHOLD=0.25
+MAX_HISTORY_MESSAGES=8
+RATE_LIMIT_PER_MIN=20
+```
+
+Keep your API credentials private. Never commit your `.env` file to GitHub.
+
+### 5. Run the Application
+
+```bash
+python app.py
+```
+
+Open your browser:
+
+```text
+http://localhost:5000
+```
+
+## 🔌 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/` | Main application interface |
+| POST | `/chat` | Process farmer queries |
+| POST | `/chat/stream` | SSE response endpoint |
+| POST | `/translate` | Translate suggestions |
+| POST | `/api/ingest` | Upload knowledge documents |
+| GET | `/api/ingest/status` | Check knowledge base status |
+| POST | `/api/analyze-image` | Analyze crop photographs |
+| POST | `/api/profile` | Update farmer profile |
+| GET | `/api/profile/<session_id>` | Retrieve farmer profile |
+| GET | `/api/suggest/<session_id>` | Retrieve contextual suggestions |
+| GET | `/health` | Application health check |
+| GET | `/api/health` | Detailed backend status |
+
+### Example: Chat API
+
+**Request**
+
+```http
+POST /chat
+Content-Type: application/json
+```
 
 ```json
 {
-  "message": "My tomato leaves have yellow spots. What should I check?",
+  "message": "How can I control pests in my tomato crop?",
   "language": "en",
-  "history": []
+  "history": [],
+  "session_id": "farmer-session-001"
 }
 ```
 
-Response:
+**Response**
 
 ```json
 {
   "success": true,
-  "response": "...",
+  "response": "Here is some guidance for your tomato crop...",
   "suggestions": [],
   "sources": [],
-  "model": "nvidia/nemotron-3-ultra-550b-a55b:free"
+  "session_id": "farmer-session-001",
+  "intent": "pest_disease",
+  "has_live_data": false,
+  "fallback": false
 }
 ```
 
-The frontend only requires `success` and `response`; additional response fields are optional. Valid language codes include `en`, `hi`, `mr`, `kn`, `ta`, `te`, `ml`, `gu`, `pa`, `bho`, `kok`, `ha`, and `bn`.
+## 📂 Project Structure
 
-### `POST /translate`
-
-Request:
-
-```json
-{"text": "What fertilizer should I use for my crops?", "language": "mr"}
+```text
+Krishi.ai/
+│
+├── app.py                  # Flask backend and AI orchestration
+├── templates/
+│   └── krishi.html         # Main application interface
+│
+├── knowledge/              # Agricultural knowledge documents
+│
+├── data/                   # Runtime SQLite database and uploads
+│   ├── krishi.db
+│   └── uploads/
+│
+├── assets/
+│   └── krishi-farming-hero.gif
+│
+├── .env                    # Private API credentials
+├── .gitignore
+└── README.md
 ```
 
-Response:
+## 🔐 Security & Reliability
 
-```json
-{"success": true, "translated": "..."}
-```
+- API keys are loaded from environment variables.
+- File uploads have configurable size restrictions.
+- Per-session request rate limiting helps control excessive requests.
+- SQLite provides persistent session and profile storage.
+- RAG confidence filtering helps exclude weak retrieval matches.
+- AI responses use reliability instructions to discourage fabricated farming recommendations.
 
-If translation service is unavailable, the endpoint returns a non-2xx response. The current HTML already catches this and uses its original suggestion.
+## ⚠️ Important Notes & Limitations
 
-## Retrieval / RAG
+- Weather information is sourced from Open-Meteo and is not an official IMD forecast.
+- Mandi price retrieval requires valid data.gov.in API credentials and a resource ID.
+- Crop image analysis requires a configured Gemini API key.
+- Semantic retrieval requires NumPy, FAISS, and Sentence Transformers. Otherwise, lexical retrieval is used as a fallback.
+- The current SSE endpoint chunks the completed LLM response into words. It does not yet provide native token-by-token streaming from the model provider.
+- Agricultural recommendations are informational. Farmers should consult their local Krishi Vigyan Kendra (KVK) or agriculture officer before making high-impact treatment decisions.
 
-Put trusted `.md`, `.txt`, `.rst`, or `.csv` references into `knowledge/`. On startup the backend loads them and splits long files into overlapping chunks. By default it uses lexical retrieval to keep local installation quick and light.
+## 🔮 Future Improvements
 
-To enable vector retrieval with a local persistent Chroma database:
+- Speech-to-Text and Text-to-Speech for voice-based farmer interactions.
+- Real-time voice conversations in regional Indian languages.
+- Advanced crop disease detection and image-based recommendations.
+- Improved regional crop calendars and localized advisory systems.
+- Farmer-specific recommendations using historical crop and field data.
+- Expanded agricultural datasets and retrieval evaluation.
 
-```powershell
-pip install -r requirements-rag.txt
-```
+## 🤝 Contributing
 
-Then set `USE_CHROMA=true` in `.env` and start the backend. The first run may download the Sentence Transformers embedding model. If vector dependencies fail to initialize, the server logs a warning and falls back to lexical retrieval.
+Contributions, suggestions, and ideas are welcome!
 
-Do not assume RAG alone verifies truth. Keep source files authoritative and up to date. Crop-specific fertilizer and pesticide recommendations should be grounded in reliable local sources.
+1. Fork the repository.
+2. Create a feature branch.
+3. Commit your changes.
+4. Submit a pull request.
 
-## Live weather and mandi price setup
+## 👨‍💻 Author
 
-**Weather:** No API key is needed. If the farmer includes a clear place name, such as `weather in Chikodi, Karnataka today`, the backend looks up the place and retrieves current conditions plus a three-day forecast from Open-Meteo. If no explicit location is provided, the assistant should ask for one instead of guessing. Open-Meteo data is a model forecast; for high-stakes farm decisions, cross-check current IMD/KVK advisories. Attribute the weather source as Open-Meteo.
+**Pranav Patil**
 
-**Mandi prices:** Get an API key from the Government of India's [Open Government Data Platform](https://data.gov.in/), then open the current daily mandi-price dataset published by the Directorate of Marketing & Inspection and copy its API resource ID. Set `DATA_GOV_IN_API_KEY` and `DATA_GOV_IN_RESOURCE_ID` in `.env`. The endpoint supports a limited set of common commodities and requires an explicit crop plus a town/mandi/district in the user's question. Always check the returned arrival date, market, variety, and units. If either setting is missing or no record matches, the assistant is instructed not to make up a price.
+Generative AI Engineer | AI & LLM Applications
 
-Other limitations:
+- [GitHub](https://github.com/vrbeirer)
+- [LinkedIn](https://www.linkedin.com/in/patil04)
+- [Portfolio](https://pranavp-portfolio.vercel.app/)
 
-- Voice input uses browser speech recognition. Assistant speech output is optional and starts only when the farmer taps the speaker icon.
-- PDFs must currently be converted to `.txt` or Markdown to be indexed.
-- If the AI provider is unavailable, the app returns a short localized service-unavailable message rather than exposing raw retrieval chunks as if they answered the question. AI-powered answers and translations require a valid `OPENROUTER_API_KEY`.
+---
 
-## Deployment
+<div align="center">
 
-For a hosted deployment, set environment variables in the host dashboard rather than committing `.env`. Use a production WSGI server such as Gunicorn (add it to your deployment requirements if your host needs it), persist `data/chroma` if using Chroma, and ensure `knowledge/` is included in the deployment. If the frontend is hosted separately, set `CORS_ORIGINS` to its exact HTTPS origin and update `API_BASE` inside the HTML to your backend URL.
+  **🌾 Making agricultural knowledge accessible, one conversation at a time.**
+
+  *Built with ❤️ for India's farming community.*
+
+</div>
